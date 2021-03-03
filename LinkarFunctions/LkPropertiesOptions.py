@@ -120,7 +120,7 @@ class LkPropertiesOptions:
 			regPage - (number) For use with pagination, indicates the number of records by page. Must be greater than 0.
 			numPage - (number) For use with pagination, indicates the page number to obtain. Must be greater than 0
 	"""
-	def Dictionaries(self, rowHeader = ROWHEADERS_TYPE.MAINLABEL, pagination = False, regPage = 10, numPage = 1):
+	def Dictionaries(self, rowHeader = ROWHEADERS_TYPE.MAINLABEL, pagination=False, regPage=10, numPage=1):
 		self.SchemaType = SCHEMA_TYPE.DICTIONARIES
 		self.SqlMode = False
 		self.RowHeader = rowHeader
@@ -142,4 +142,4 @@ class LkPropertiesOptions:
 			The string ready to be used by LinkarSERVER.
 	"""
 	def GetString(self):
-		return self.SchemaType + DBMV_Mark.AM_str + "1" if self.SqlMode else "0" + DBMV_Mark.AM_str + "1" if self.UsePropertyNames else "0" + DBMV_Mark.AM_str +	"1" if self.RowProperties else "0" + DBMV_Mark.AM_str +	"1" if self.OnlyVisibles else "0" + DBMV_Mark.AM_str + self.RowHeader + DBMV_Mark.AM_str + "1" if self.Pagination else "0" + DBMV_Mark.VM_str + self.Pagination_RegPage + DBMV_Mark.VM_str + self.Pagination_NumPage;
+		return self.SchemaType + DBMV_Mark.AM_str + "1" if self.SqlMode else "0" + DBMV_Mark.AM_str + "1" if self.UsePropertyNames else "0" + DBMV_Mark.AM_str +	"1" if self.RowProperties else "0" + DBMV_Mark.AM_str +	"1" if self.OnlyVisibles else "0" + DBMV_Mark.AM_str + self.RowHeader + DBMV_Mark.AM_str + "1" if self.Pagination else "0" + DBMV_Mark.VM_str + self.Pagination_RegPage + DBMV_Mark.VM_str + self.Pagination_NumPage
