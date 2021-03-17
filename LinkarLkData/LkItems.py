@@ -57,12 +57,12 @@ class LkItems:
 			The LkItem extracted.
 		
 	"""
-	def get(self, id):
-		if isinstance(id, numbers.Number):
-			return self.LkItems[i] # get this line from code in node.js . I'm not sure about "i". Is it i or id ?
+	def get(self, record_id):
+		if isinstance(record_id, numbers.Number):
+			return self.LkItems[id] # get this line from code in node.js . I'm not sure about "i". Is it "i" or "id" ?
 		else:
 			for i in range(len(self.LkItems)):
-				if self.LkItems[i].RecordId == id:
+				if self.LkItems[i].RecordId == record_id:
 					return self.LkItems[i]
 			return None
 
@@ -91,7 +91,7 @@ class LkItems:
 		Arguments:
 			recordIds - (string array) Array with the list of recordIds.
 	"""
-	def pushIds(self, recordIds): #Array
+	def pushIds(self, recordIds): # Python-List
 		for i in range(len(recordIds)):
 			lkRecord = LkItem(recordIds[i])
 			self.LkItems.append(lkRecord)

@@ -1,7 +1,7 @@
 import os, platform, ctypes
 from cffi import FFI
 
-encoding = None
+encoding = 'latin1'
 class LinkarCLib:
 	def __init__(self):
 		
@@ -15,13 +15,9 @@ class LinkarCLib:
 		lib_path = os.path.dirname(os.path.realpath(__file__))
 		if os.name == "nt":
 			lib_path += "/DLL/x" + os_arch.replace("bit", "") + "/Linkar.dll"
-			encoding = 'cp1252'
 		else:
 			lib_path += "/linux.so/x" + os_arch.replace("bit", "") + "/libLinkar.so"
-			encoding = 'iso-8859-1'
 
-		# ffi = FFI()
-		# self.lib_linkar = ffi.dlopen(lib_path)
 		self.lib_linkar = ctypes.cdll.LoadLibrary(lib_path)
 		self.encoding = encoding
 
@@ -133,13 +129,13 @@ class ConnectionInfo:
 
 
 	def toString(self):
-		return '\u001C'.join[
+		return '\u001C'.join([
 			self.CredentialOptions.toString(),
 			self.SessionId,
 			self.LkConnectionId,
 			self.PublicKey,
 			self.ReceiveTimeout
-		]
+		])
 
 
 """
@@ -160,6 +156,7 @@ class Linkar:
 	""" Utils (Not from C) """
 	def LkAllocateBuffer(self, input_buffer):
 		return ctypes.create_string_buffer(input_buffer)
+		# return ctypes.c_char_p(input_buffer)
 
 
 	def LkCloneAndFree(self, ret_cxx_value, free):
@@ -195,32 +192,42 @@ class Linkar:
 			Complex string with the result of the operation.
 	"""
 	def LkExecuteDirectOperation(self, credentialOptions, operationCode, operationArgs, inputDataFormat, outputDataFormat, receiveTimeout):
-		pointer = ctypes.create_string_buffer(1)
-		pOperationArgs = self.LkAllocateBuffer(str.encode(operationArgs)) # pass str as bytes type.
+		pointer = ctypes.c_wchar_p()
+		pOperationArgs = self.LkAllocateBuffer(operationArgs.encode(encoding=encoding))
+		
 		try:
-			linkar.lib_linkar.LkExecuteDirectOperation.argtypes = (
-				ctypes.c_char_p,
+			linkar.lib_linkar.LkExecuteDirectOperation.argtypes = [
+				ctypes.POINTER(ctypes.c_wchar_p),
 				ctypes.c_wchar_p,
 				ctypes.c_uint8,
 				ctypes.c_char_p,
 				ctypes.c_uint8,
 				ctypes.c_uint8,
 				ctypes.c_uint32
-			)
-			# co = ctypes.create_string_buffer(str.encode(credentialOptions.toString()))
+			]
+			linkar.lib_linkar.LkExecuteDirectOperation.restype = ctypes.c_wchar_p
+
 			co = credentialOptions.toString()
-			linkar.lib_linkar.LkExecuteDirectOperation.restype = ctypes.c_char_p
-			ret_cxx_value = linkar.lib_linkar.LkExecuteDirectOperation(pointer, co, operationCode, pOperationArgs, inputDataFormat, outputDataFormat, receiveTimeout)
-			
+			ret_cxx_value = linkar.lib_linkar.LkExecuteDirectOperation(
+				ctypes.byref(pointer),
+				co,
+				operationCode,
+				pOperationArgs,
+				inputDataFormat,
+				outputDataFormat,
+				receiveTimeout
+			)
+			return ret_cxx_value
 		except Exception as e:
 			return ">>> " + str(e)
 		
-		if ret_cxx_value is not None:
-			return self.LkCloneAndFree(ret_cxx_value, True)
-		else:
-			# errPointer = ctypes.byref(pointer)
+		# if ret_cxx_value is not None:
+		# 	return self.LkCloneAndFree(ret_cxx_value, True)
+		# else:
+		# 	errPointer = ctypes.byref(pointer)
+		# 	print(errPointer)
 			# raise self.LkCloneAndFree(errPointer, True).toString(linkar.encoding)
-			raise Exception("\n\nDirect Operation return value is \"None\".\n")
+			# raise Exception("\n\nDirect Operation return value is \"None\".\n")
 
 
 
