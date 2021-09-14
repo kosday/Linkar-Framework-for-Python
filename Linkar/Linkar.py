@@ -1,5 +1,5 @@
+from Linkar_Functions.Linkar.Functions.OPERATION_CODE  import OPERATION_CODE
 import os, platform, ctypes
-from cffi import FFI
 
 encoding = 'latin1'
 class LinkarCLib:
@@ -15,15 +15,15 @@ class LinkarCLib:
 		lib_path = os.path.dirname(os.path.realpath(__file__))
 		if os.name == "nt":
 			lib_path += "/DLL/x" + os_arch.replace("bit", "") + "/Linkar.dll"
+			self.encoding = "cp1252"
 		else:
 			lib_path += "/linux.so/x" + os_arch.replace("bit", "") + "/libLinkar.so"
+			self.encoding = "iso-8859-1"
 
 		self.lib_linkar = ctypes.cdll.LoadLibrary(lib_path)
-		self.encoding = encoding
-
+		#self.encoding = encoding
 
 linkar = LinkarCLib()
-
 
 """
 	Class: CredentialOptions
@@ -56,10 +56,10 @@ linkar = LinkarCLib()
 class CredentialOptions:
 
 	"""
-		__init__() -- constructor
-			initializes a new instance of CredentialOptions class.
+		Constructor: __init__
+			Initializes a new instance of CredentialOptions class.
 
-		Arguments --
+		Arguments:
 			host - Address or hostname where Linkar Server is listening.
 			entrypoint - The EntryPoint Name defined in Linkar Server.
 			port - Port number where the EntryPoint keeps listening.
@@ -99,14 +99,14 @@ class CredentialOptions:
 """
 class ConnectionInfo:
 	"""
-		__init__() -- constructor
+		Constructor: __init__
 			Initializes a new instance of the CredentialOptions class
 
 		Arguments:
 			sessionId - A unique Identifier for the stablished session in LinkarSERVER. This value is set after Login operation.
 			lkConnectionId - Internal LinkarSERVER ID to keep the session. This value is set after Login operation.
 			publicKey - The public key used to encrypt transmission data between LinkarCLIENT and LinkarSERVER. This value is set after Login operation.
-			crdOptions - The CredentialOptions object with the necessary information to connect to the LinkarSERVER.
+			crdOptions - The <CredentialOptions> object with the necessary information to connect to the LinkarSERVER.
 	"""
 	def __init__(self, sessionId, lkConnectionId, publicKey, crdOptions):
 		self.SessionId = sessionId
@@ -116,7 +116,7 @@ class ConnectionInfo:
 		self.ReceiveTimeout = 0
 
 	def fromString(self, string):
-		seperator = '\u001C';
+		seperator = '\u001C'
 		creds = string.split(seperator)
 		self.CredentialOptions = CredentialOptions(
 			creds[0], creds[1], int(creds[2]),
@@ -127,16 +127,14 @@ class ConnectionInfo:
 		self.PublicKey = creds[10]
 		self.ReceiveTimeout = creds[11]
 
-
 	def toString(self):
 		return '\u001C'.join([
 			self.CredentialOptions.toString(),
 			self.SessionId,
 			self.LkConnectionId,
 			self.PublicKey,
-			self.ReceiveTimeout
+			str(self.ReceiveTimeout)
 		])
-
 
 """
 	Class: Linkar
@@ -147,33 +145,13 @@ class Linkar:
 	def __init__(self):
 		pass
 
-
-	""" Linkar functins. """
+	""" Linkar functions. """
 	def LkFreeMemory(self, lkString):
 		linkar.lib_linkar.LkFreeMemory(lkString)
-
 
 	""" Utils (Not from C) """
 	def LkAllocateBuffer(self, input_buffer):
 		return ctypes.create_string_buffer(input_buffer)
-		# return ctypes.c_char_p(input_buffer)
-
-
-	def LkCloneAndFree(self, ret_cxx_value, free):
-		
-		if ret_cxx_value is None:
-			size = 0
-			ret_cxx_value = ctypes.c_bool
-		else:
-			size = ctypes.sizeof(ret_cxx_value)
-		buff = ctypes.resize(ret_cxx_value, size)
-		# var buff = ref.reinterpretUntilZeros(ret_cxx_value, 1)
-		# output_buffer = self.LkAllocateBuffer(str.encode(buff))
-		
-		if free:
-			self.LkFreeMemory(ret_cxx_value)
-		return output_buffer
-
 
 	""" Linkar """
 	"""
@@ -192,54 +170,90 @@ class Linkar:
 			Complex string with the result of the operation.
 	"""
 	def LkExecuteDirectOperation(self, credentialOptions, operationCode, operationArgs, inputDataFormat, outputDataFormat, receiveTimeout):
-		pointer = ctypes.c_wchar_p()
-		pOperationArgs = self.LkAllocateBuffer(operationArgs.encode(encoding=encoding))
+		error = ""
+		pError = ctypes.c_char_p(error.encode(linkar.encoding))
 		
-		try:
-			linkar.lib_linkar.LkExecuteDirectOperation.argtypes = [
-				ctypes.POINTER(ctypes.c_wchar_p),
-				ctypes.c_wchar_p,
-				ctypes.c_uint8,
-				ctypes.c_char_p,
-				ctypes.c_uint8,
-				ctypes.c_uint8,
-				ctypes.c_uint32
-			]
-			linkar.lib_linkar.LkExecuteDirectOperation.restype = ctypes.c_wchar_p
-
-			co = credentialOptions.toString()
-			ret_cxx_value = linkar.lib_linkar.LkExecuteDirectOperation(
-				ctypes.byref(pointer),
-				co,
-				operationCode,
-				pOperationArgs,
-				inputDataFormat,
-				outputDataFormat,
-				receiveTimeout
-			)
-			return ret_cxx_value
-		except Exception as e:
-			return ">>> " + str(e)
+		linkar.lib_linkar.LkExecuteDirectOperation.argtypes = [
+			ctypes.POINTER(ctypes.c_char_p),		# error (char**)
+			ctypes.c_char_p,						# credentialOptions (char*)	
+			ctypes.c_uint8,							# operationCode (uint8_t)
+			ctypes.c_char_p,						# operationArgs (char*)
+			ctypes.c_uint8,							# inputDataFormat (uint8_t)
+			ctypes.c_uint8,							# outputDataFormat (uint8_t)
+			ctypes.c_uint32							# receiveTimeout (uint32_t)
+		]
+		linkar.lib_linkar.LkExecuteDirectOperation.restype = ctypes.c_void_p
+		co = credentialOptions.toString()
+		ret_cxx_value = linkar.lib_linkar.LkExecuteDirectOperation(
+			pError,
+			ctypes.c_char_p(co.encode(linkar.encoding)),
+			operationCode,
+			ctypes.c_char_p(operationArgs.encode(linkar.encoding)),
+			inputDataFormat,
+			outputDataFormat,
+			receiveTimeout)
 		
-		# if ret_cxx_value is not None:
-		# 	return self.LkCloneAndFree(ret_cxx_value, True)
-		# else:
-		# 	errPointer = ctypes.byref(pointer)
-		# 	print(errPointer)
-			# raise self.LkCloneAndFree(errPointer, True).toString(linkar.encoding)
-			# raise Exception("\n\nDirect Operation return value is \"None\".\n")
-
-
-
+		if ret_cxx_value is not None:
+			ret_value = ctypes.cast(ret_cxx_value, ctypes.c_char_p).value
+			self.LkFreeMemory(ctypes.cast(ret_cxx_value, ctypes.c_char_p))
+			return str(ret_value, linkar.encoding)
+		else:
+			msgError = pError.value.decode(linkar.encoding)
+			self.LkFreeMemory(ctypes.cast(pError, ctypes.c_char_p))
+			raise Exception(msgError)
+		
+	"""
+		Function:	LkExecutePersistentOperation
+			Execute "persistent operations". These operations required that a session will be stablished previously with Login operation.
+		
+		Arguments:
+			connectionInfo - (<ConnectionInfo>) Contains the data necessary to access an established LinkarSERVER session.
+			operationCode - (<OPERATION_CODE>) Code of the operation to be performed.
+			operationArgs - (string) Specific arguments of every operation.
+			inputDataFormat - (number <DATAFORMAT_TYPE>, <DATAFORMATCRU_TYPE> or <DATAFORMATSCH_TYPE>) Format of the input data.
+			outputDataFormat - (number <DATAFORMAT_TYPE>, <DATAFORMATCRU_TYPE> or <DATAFORMATSCH_TYPE>) Format of the output data.
+			receiveTimeout - (number) Maximum time in seconds to wait the response from LinkarSERVER. A value less or equal to 0, wait for response indefinitely.
+			
+		Returns:
+			Complex string with the result of the operation. 
+	"""
 	def LkExecutePersistentOperation(self, connectionInfo, operationCode, operationArgs, inputDataFormat, outputDataFormat, receiveTimeout):
-		pointer = ctypes.create_string_buffer(1)
-		pOperationArgs = self.LkAllocateBuffer(str.encode(operationArgs)) # pass str as bytes type.
-		pointerConnInfo = ctypes.create_string_buffer(connectionInfo.toString())
-		ret_cxx_value = linkar.lib_linkar.LkExecutePersistentOperation(pointer, pointerConnInfo, operationCode, pOperationArgs, inputDataFormat, outputDataFormat, receiveTimeout)
+		error = ""
+		pError = ctypes.c_char_p(error.encode(linkar.encoding))
+
+		strConnInfo = connectionInfo.toString()
+		pConnInfo = ctypes.c_char_p(strConnInfo.encode(linkar.encoding))
+
+		linkar.lib_linkar.LkExecutePersistentOperation.argtypes = [
+			ctypes.POINTER(ctypes.c_char_p),		# error (char**)
+			ctypes.POINTER(ctypes.c_char_p),		# connectionInfo (char**)
+			ctypes.c_uint8,							# operationCode (uint8_t)
+			ctypes.c_char_p,						# operationArgs (char*)
+			ctypes.c_uint8,							# inputDataFormat (uint8_t)
+			ctypes.c_uint8,							# outputDataFormat (uint8_t)
+			ctypes.c_uint32							# receiveTimeout (uint32_t)
+		]
+
+		linkar.lib_linkar.LkExecutePersistentOperation.restype = ctypes.c_void_p
+		ret_cxx_value = linkar.lib_linkar.LkExecutePersistentOperation(
+			pError,
+			pConnInfo,
+			operationCode,
+			ctypes.c_char_p(operationArgs.encode(linkar.encoding)),
+			inputDataFormat,
+			outputDataFormat,
+			receiveTimeout)
 
 		if ret_cxx_value is not None:
-			print("Success result. Parsing Values.")
+			if operationCode == OPERATION_CODE.LOGIN:
+				strConnInfo = pConnInfo.value.decode(linkar.encoding)
+				self.LkFreeMemory(ctypes.cast(pConnInfo, ctypes.c_char_p))
+				connectionInfo.fromString(strConnInfo)
+
+			ret_value = ctypes.cast(ret_cxx_value, ctypes.c_char_p).value
+			self.LkFreeMemory(ctypes.cast(ret_cxx_value, ctypes.c_char_p))
+			return str(ret_value, linkar.encoding)
 		else:
-			# errPointer = ctypes.byref(pointer)
-			# raise self.LkCloneAndFree(errPointer, True).toString(linkar.encoding)
-			raise Exception("\n\nPersistent Operation return value is \"None\".\n")
+			msgError = pError.value.decode(linkar.encoding)
+			self.LkFreeMemory(ctypes.cast(pError, ctypes.c_char_p))
+			raise Exception(msgError)

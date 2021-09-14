@@ -1,0 +1,17 @@
+Title: Library Overview
+
+This library is the SendCommand function with small variants:
+
+	- Executing Persistent or Direct operations. 
+	- Executing specified commands in XML or JSON.
+
+A command is nothing more than a string of characters where an operation is specified (E.g.. Read) with all its mandatory and optional parameters described in XML or JSON format.
+
+Modules Required:
+
+	- <ENVELOPE_FORMAT>
+	- From Linkar.Functions (<LinkarFunctions>)
+		- <OPERATION_CODE>
+		- <DATAFORMAT_TYPE>
+		- <ASCII_Chars>
+	- <Linkar>

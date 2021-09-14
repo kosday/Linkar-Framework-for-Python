@@ -1,0 +1,10 @@
+Title: Library Overview
+
+This library consists of functions that perform Persistent operations against the Linkar Server, which are always in MV format for data input and output.
+
+Two functions are also included to carry out the “<LinkarClient.Login>” and “<LinkarClient.Logout>” operations.
+
+Modules Required:
+
+	- Linkar.Functions (<LinkarFunctions>)
+	- Linkar.Functions.Persistent.LinkarClient (<LinkarClient>)
