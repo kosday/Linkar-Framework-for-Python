@@ -1,12 +1,4 @@
-from .DBMV_Mark import DBMV_Mark
-from .ASCII_Chars import ASCII_Chars
-from .CONVERSION_TYPE import CONVERSION_TYPE
-from .ReadOptions import ReadOptions
-from .UpdateOptions import UpdateOptions
-from .NewOptions import NewOptions
-from .DeleteOptions import DeleteOptions
-from .SelectOptions import SelectOptions
-
+from Linkar_Functions.Linkar.Functions.LinkarFunctions import *
 """
 Class: OperationArguments
 	Auxiliary static class with functions to obtain the 3 items of every LinkarSERVER operation.
@@ -139,6 +131,8 @@ class OperationArguments:
 	"""
 	@staticmethod
 	def GetDeleteArgs(filename, records, deleteOptions, customVars):
+		if not deleteOptions:
+			deleteOptions = DeleteOptions()
 		options = deleteOptions.GetString()
 		inputData = filename + DBMV_Mark.AM + records
 		return customVars + ASCII_Chars.US_str + options + ASCII_Chars.US_str + inputData
@@ -318,6 +312,8 @@ class OperationArguments:
 	"""
 	@staticmethod
 	def GetLkSchemasArgs(lkSchemasOptions, customVars):
+		if lkSchemasOptions == None:
+			lkSchemasOptions = LkSchemasOptions()
 		options = lkSchemasOptions.GetString()
 		return  customVars + ASCII_Chars.US_str + options + ASCII_Chars.US_str + ""
 
@@ -337,6 +333,8 @@ class OperationArguments:
 	"""
 	@staticmethod
 	def GetLkPropertiesArgs(filename, lkPropertiesOptions, customVars):
+		if lkPropertiesOptions == None:
+			lkPropertiesOptions = LkPropertiesOptions()
 		options = lkPropertiesOptions.GetString()
 		return customVars + ASCII_Chars.US_str + options + ASCII_Chars.US_str + filename
 
@@ -359,6 +357,8 @@ class OperationArguments:
 	"""
 	@staticmethod
 	def GetGetTableArgs(filename, selectClause, dictClause, sortClause, tableOptions, customVars):
+		if tableOptions == None:
+			tableOptions = TableOptions()
 		options = tableOptions.GetString()
 		inputData = filename + DBMV_Mark.AM + selectClause + DBMV_Mark.AM + dictClause + DBMV_Mark.AM + sortClause
 		return customVars + ASCII_Chars.US_str + options + ASCII_Chars.US_str + inputData
