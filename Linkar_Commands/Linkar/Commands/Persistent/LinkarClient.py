@@ -1,5 +1,5 @@
 from Linkar_Functions.Linkar.Functions import LinkarFunctions
-from ENVELOPE_FORMAT import ENVELOPE_FORMAT
+from ..ENVELOPE_FORMAT import ENVELOPE_FORMAT
 from Linkar import Linkar
 
 linkar = Linkar.Linkar()
@@ -107,7 +107,7 @@ class LinkarClient:
 		customVars = ""  # It's inside the command template
 		options = "" # It's inside the command template
 		opArgs = customVars + LinkarFunctions.ASCII_Chars.US_str + options + LinkarFunctions.ASCII_Chars.US_str + command
-		if commandFormat == ENVELOPE_FORMAT.ENVELOPE_FORMAT.JSON:
+		if commandFormat == ENVELOPE_FORMAT.JSON:
 		 	opCode = LinkarFunctions.OPERATION_CODE.COMMAND_JSON
 		else:
 		 	opCode = LinkarFunctions.OPERATION_CODE.COMMAND_XML
@@ -159,7 +159,7 @@ class LinkarClient:
 		---
 	"""
 	def SendJsonCommand(self, command, receiveTimeout = 0):
-		return self.SendCommand(command, ENVELOPE_FORMAT.ENVELOPE_FORMAT.JSON, receiveTimeout)
+		return self.SendCommand(command, ENVELOPE_FORMAT.JSON, receiveTimeout)
 
 	"""
 		Function: SendXmlCommand
@@ -202,4 +202,4 @@ class LinkarClient:
 		---
 	"""
 	def SendXmlCommand(self, command, receiveTimeout = 0):
-		return self.SendCommand(command, ENVELOPE_FORMAT.ENVELOPE_FORMAT.XML, receiveTimeout)
+		return self.SendCommand(command, ENVELOPE_FORMAT.XML, receiveTimeout)
