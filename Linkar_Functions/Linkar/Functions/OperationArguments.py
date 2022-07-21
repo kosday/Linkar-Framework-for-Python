@@ -87,7 +87,7 @@ class OperationArguments:
 			updateOptions = UpdateOptions()
 
 		options = updateOptions.GetString()
-		inputData = filename + DBMV_Mark.AM + records + ASCII_Chars.FS_str + dictionaries;
+		inputData = filename + DBMV_Mark.AM + records + ASCII_Chars.FS_str + dictionaries
 		return customVars + ASCII_Chars.US_str + options + ASCII_Chars.US_str + inputData
 
 	"""

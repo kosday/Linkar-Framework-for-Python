@@ -18,14 +18,19 @@ These libraries provide functions that allow the MV type input and output buffer
 
 These libraries help developers to create applications faster. Some of them are based on the two primitive ones. For example, there are libraries that allow operations with input and output data in XML or JSON format. There are also libraries that allow you to work with input and output data in a very similar format to an MV buffer.
 
-Developers will find functions to synchronously and asynchronously execute operations, in all these libraries. Functions that work in asynchronous mode instead of returning an object of the "string" type, return an object of  "Task <string>" type. Asynchronous functions run on a different thread than the main one, allowing the main thread not have to wait until the end of the operation. (not in C Library)
-
 Developers who want to create an application do not need to use all these libraries. They can just use the ones required for their purpose. The following section shows the hierarchy of the Linkar FRAMEWORK libraries that will help them select the  libraries needed in each case.
-
 
 The 15 libraries of Linkar Framework for Python were integrally written in Python. The Python base library Linkar, where are the "primitive" functions, is open source, but requires the Linkar Framework Private C Library (Linkar.dll for Windows or libLinkar.so for Linux) 
 These libraries were written using Windows Python v.3.9.5
 
+The needed C libraries can be downloaded from: https://www.kosday.com/linkar-downloads. The C libraries downloaded, must be place inside the Linkar folder. The subfolder "DLL" is for Windows and subfolder "linux.so" for linux. Inside these subfolders there are other 2 subfolders for the different architecture (32 or 64 bits) of the libraries. Here is where the needed library must be place. You really only need a single library, depending on the operating system and architecture on which Python is going to run. 
+- Folder: Linkar
+	- DLL
+		- x64
+		- x86
+	- linux.so
+		- x32
+		- x64
 ## Linkar Framework hierarchy
 
 - Linkar (open-source) Need **Linkar C Private Library** in order to connect with Linkar Server

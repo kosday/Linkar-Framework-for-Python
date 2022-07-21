@@ -20,10 +20,11 @@ from Linkar_LkData.Linkar.LkData.LkDataSchProp import LkDataSchProp
 if __name__ == "__main__":
 	print("\n")
 	
+	# You must set the correct credentials for your EntryPoint
 	credentialOpt = CredentialOptions(
-		'192.168.100.101', 		# host
-		'QMEP1', 				# entryPoint
-		11301, 					# entryPoint Port
+		'127.0.0.1',	 		# host
+		'EPNAME', 				# entryPoint
+		11300, 					# entryPoint Port
 		'admin', 				# username
 		'admin', 				# password
 		'', 					# lang
@@ -55,6 +56,7 @@ if __name__ == "__main__":
 		rec1 = MvOperations.LkReplace(rec1, "111111111", 3)
 		rec2 = "CUSTOMER_TEST2" + DBMV_Mark.AM_str + "ADDRESS_TEST2" + DBMV_Mark.AM_str + "222222222"
 		records = StringFunctions.ComposeNewBuffer([ "TEST_1", "TEST_2" ], [ rec1, rec2])
+
 		if withLogin:
 			result = linkarClt.New(filename, records, newOpt, inputFormat, outputFormatCRU, customVars, receiveTimeout)
 		else:
@@ -62,7 +64,7 @@ if __name__ == "__main__":
 		print("Raw result:--------------------------------\n" + result)
 		print("-------------------------------------------")
 
-		print("\nNEW. Create two news records with IDs \"TEST_3\" and \"TEST_2\" using LkData")
+		print("\nNEW. Create two news records with IDs \"TEST_3\" and \"TEST_4\" using LkData")
 		global lkDataCRUD
 		lkDataCRUD.LkRecords.LstDictsId = [ "ID" ]
 		lkDataCRUD.LkRecords.LstDicts = ["NAME", "ADDR", "PHONE"]
@@ -115,9 +117,9 @@ if __name__ == "__main__":
 		print("READ. Read recordId TEST_1 and TEST_2")
 		recordIds = StringFunctions.ComposeRecordIds(["TEST_1", "TEST_2"])
 		if withLogin:
-			result = linkarClt.Read(filename, recordIds, dictionaries, readOpt, inputFormat, outputFormat, customVars, receiveTimeout)
+			result = linkarClt.Read(filename, recordIds, dictionaries, readOpt, inputFormat, outputFormatCRU, customVars, receiveTimeout)
 		else:
-			result = DirectFunctions.Read(credentialOpt, filename, recordIds, dictionaries, readOpt, inputFormat, outputFormat, customVars, receiveTimeout)
+			result = DirectFunctions.Read(credentialOpt, filename, recordIds, dictionaries, readOpt, inputFormat, outputFormatCRU, customVars, receiveTimeout)
 		print("Raw result:--------------------------------\n" + result)
 		print("-------------------------------------------")
 
@@ -160,12 +162,9 @@ if __name__ == "__main__":
 			result = linkarClt.Read(filename, recordIds, dictionaries, readOpt, inputFormat, outputFormatCRU, customVars, receiveTimeout)
 		else:
 			result = DirectFunctions.Read(credentialOpt, filename, recordIds, dictionaries, readOpt, inputFormat, outputFormatCRU, customVars, receiveTimeout)
-
-		##orgRec1 = StringFunctions.ExtractRecords(result)[0]
-		orgRec1 = ""
+		orgRec1 = StringFunctions.ExtractRecords(result)[0]	
 		rec1 = MvOperations.LkReplace(orgRec1, "UPDATE_ADDRESS_TEST_1", 2)
 		records = StringFunctions.ComposeUpdateBuffer(recordIds, rec1, orgRec1)
-
 		optimisticLockControl = False
 		readAfter = True
 		originalRecords = False
@@ -225,13 +224,13 @@ if __name__ == "__main__":
 		print("LkData:------------------------------------")
 		recordId = "TEST_4"
 		dictionaries = "ADDR"
-		attributeValue = "UPDATE_ADDRESS_TEST_4"
+		attributeValue = "UPDATEPARTIAL_ADDRESS_TEST_4"
 		orgRecord = ""
 		records = StringFunctions.ComposeUpdateBuffer(recordId, attributeValue, orgRecord)
 		if withLogin:
-			result = linkarClt.Update(filename, records, updateOpt, inputFormat, outputFormatCRU, customVars, receiveTimeout)
+			result = linkarClt.UpdatePartial(filename, records, dictionaries, updateOpt, inputFormat, outputFormatCRU, customVars, receiveTimeout)
 		else:
-			result = DirectFunctions.Update(credentialOpt, filename, records, updateOpt, inputFormat, outputFormatCRU, customVars, receiveTimeout)
+			result = DirectFunctions.UpdatePartial(credentialOpt, filename, records, dictionaries, updateOpt, inputFormat, outputFormatCRU, customVars, receiveTimeout)
 		lkData = LkDataCRUD(result)
 		print(lkData.LkRecords.LstDictsId[0] + "\t", end="")
 		for dic in lkData.LkRecords.LstDicts:
@@ -512,6 +511,7 @@ if __name__ == "__main__":
 		print("\nSchemaType: LKSCHEMAS")
 		rowHeader = ROWHEADERS_TYPE.MAINLABEL
 		rowProperties = False
+		onlyVisibles = False;
 		usePropertyNames = False
 		repeatValues = False
 		applyConversion = False
@@ -521,7 +521,7 @@ if __name__ == "__main__":
 		regPage = 10
 		numPage = 1
 		tableOpt = TableOptions()
-		tableOpt.LkSchemas(rowHeader, rowHeader, rowProperties, usePropertyNames, repeatValues, applyConversion, applyFormat, calculated, pagination, regPage, numPage)
+		tableOpt.LkSchemas(rowHeader, rowProperties, onlyVisibles, usePropertyNames, repeatValues, applyConversion, applyFormat, calculated, pagination, regPage, numPage)
 		selectClause = ""
 		dictClause = ""
 		sortClause = "BY ID"
@@ -533,7 +533,6 @@ if __name__ == "__main__":
 		print("-------------------------------------------")
 
 		print("\nSchemaType: SQL MODE")
-		onlyVisibles = False
 		tableOpt.SqlMode(onlyVisibles, applyConversion, applyFormat, calculated, pagination, regPage, numPage)
 		filenameSql = "CUSTOMERS"
 		if withLogin:
