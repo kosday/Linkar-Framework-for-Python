@@ -4,6 +4,7 @@ from .CONVERSION_TYPE import CONVERSION_TYPE
 from .DATAFORMAT_TYPE import DATAFORMAT_TYPE
 from .DATAFORMATCRU_TYPE import DATAFORMATCRU_TYPE
 from .DATAFORMATSCH_TYPE import DATAFORMATSCH_TYPE
+from .DATAFORMATSCHPROP_TYPE import DATAFORMATSCHPROP_TYPE
 from .OPERATION_CODE import OPERATION_CODE
 from .MvOperations import MvOperations
 from .RecordIdType import RecordIdType
@@ -35,6 +36,8 @@ from .OperationArguments import OperationArguments
         from .DATAFORMATCRU_TYPE import <DATAFORMATCRU_TYPE>
 
         from .DATAFORMATSCH_TYPE import <DATAFORMATSCH_TYPE>
+
+        from .DATAFORMATSCHPROP_TYPE import <DATAFORMATSCHPROP_TYPE>
 
         from .OPERATION_CODE import <OPERATION_CODE>
 
